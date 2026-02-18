@@ -99,3 +99,28 @@ class Game:
         self.valid_moves = {}
         self.selected = None
         self.turn = BLACK if self.turn == RED else RED
+
+    # Uusi metodi: Piirretään ilmoitus voittajasta
+    def draw_winner(self, winner_color):
+        # Luodaan fontti-olio (koko 100)
+        font = pygame.font.SysFont("arial", 50, bold=True)
+        
+        # Määritetään teksti ja väri
+        if winner_color == RED:
+            text = "PUNAINEN VOITTI!"
+            color = RED
+        else:
+            text = "MUSTA VOITTI!"
+            color = BLACK
+
+        # Luodaan tekstipinta (Surface)
+        winner_text = font.render(text, True, color)
+        
+        # Piirretään valkoinen taustalaatikko tekstille, jotta se erottuu
+        bg_rect = winner_text.get_rect(center=(COLS * SQUARE_SIZE // 2, ROWS * SQUARE_SIZE // 2))
+        pygame.draw.rect(self.win, WHITE, bg_rect.inflate(20, 20))
+        pygame.draw.rect(self.win, BLACK, bg_rect.inflate(20, 20), 2) # Reunukset
+        
+        # Piirretään teksti keskelle ruutua
+        self.win.blit(winner_text, bg_rect)
+        pygame.display.update()
