@@ -1,6 +1,7 @@
 import pygame
 from .constants import BLACK, ROWS, RED, SQUARE_SIZE, COLS, WHITE, BROWN, LBROWN
 from .piece import Piece
+from checkers import piece
 
 class Board:
     def __init__(self):
@@ -16,6 +17,20 @@ class Board:
             for col in range(row % 2, COLS, 2):
                 pygame.draw.rect(win, LBROWN, (row*SQUARE_SIZE, col*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
+    def move(self, piece, row, col):
+        self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
+        piece.move(row, col)
+
+        if row == ROWS - 1 or row == 0:
+            piece.make_king()
+            if piece.color == BLACK:
+                self.black_kings += 1
+            else:
+                self.red_kings += 1 
+
+    def get_piece(self, row, col):
+        return self.board[row][col]
+    
     def create_board(self):
         for row in range(ROWS):
             self.board.append([])
