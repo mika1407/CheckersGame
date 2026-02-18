@@ -30,27 +30,57 @@ class Game:
             if not result:
                 self.selected = None
                 self.select(row, col)
+            return result
         
         piece = self.board.get_piece(row, col)
         if piece != 0 and piece.color == self.turn:
+            # Tarkista onko koko laudalla pakollisia hyppyjä
+            all_mandatory = self._get_all_mandatory_jumps()
+            
+            if all_mandatory:
+                if piece in all_mandatory:
+                    self.selected = piece
+                    self.valid_moves = all_mandatory[piece]
+                    return True
+                return False # Ei saa valita tätä nappulaa, koska on hypättävä toisella
+            
             self.selected = piece
             self.valid_moves = self.board.get_valid_moves(piece)
             return True
             
         return False
 
+    def _get_all_mandatory_jumps(self):
+        mandatory = {}
+        for r in range(ROWS):
+            for c in range(COLS):
+                p = self.board.get_piece(r, c)
+                if p != 0 and p.color == self.turn:
+                    moves = self.board.get_valid_moves(p)
+                    # Jos nappulalla on siirtoja joissa skipped > 0
+                    jumps = {m: s for m, s in moves.items() if len(s) > 0}
+                    if jumps:
+                        mandatory[p] = jumps
+        return mandatory
+
     def _move(self, row, col):
         piece = self.board.get_piece(row, col)
         if self.selected and piece == 0 and (row, col) in self.valid_moves:
-            self.board.move(self.selected, row, col)
             skipped = self.valid_moves[(row, col)]
+            self.board.move(self.selected, row, col)
+            
             if skipped:
                 self.board.remove(skipped)
+                # TUPLAHYPPY: Tarkista voiko samalla nappulalla jatkaa
+                new_moves = self.board.get_valid_moves(self.selected)
+                # Koska Board.get_valid_moves suodattaa jo, tarkistetaan vain onko hyppyjä
+                if any(len(s) > 0 for s in new_moves.values()):
+                    self.valid_moves = new_moves
+                    return True # Pysytään samassa nappulassa
+            
             self.change_turn()
-        else:
-            return False
-
-        return True
+            return True
+        return False
 
     def draw_valid_moves(self, moves):
         for move in moves:
@@ -59,7 +89,5 @@ class Game:
 
     def change_turn(self):
         self.valid_moves = {}
-        if self.turn == RED:
-            self.turn = BLACK
-        else:
-            self.turn = RED
+        self.selected = None
+        self.turn = BLACK if self.turn == RED else RED
