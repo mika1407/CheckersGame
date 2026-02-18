@@ -66,7 +66,20 @@ class Board:
             return BLACK
         elif self.black_left <= 0:
             return RED
+        
+        # Tarkistetaan onko pelaajilla siirtoja jäljellä
+        if not self.has_valid_moves(RED):
+            return BLACK
+        if not self.has_valid_moves(BLACK):
+            return RED
+        
         return None 
+    
+    def has_valid_moves(self, color):
+        for piece in self.get_all_pieces(color):
+            if self.get_valid_moves(piece):
+                return True
+        return False
 
     def get_valid_moves(self, piece):
         moves = {}
@@ -127,3 +140,16 @@ class Board:
             else: last = [current]
             right += 1
         return moves
+    
+    def evaluate(self):
+        # AI on musta (+), ihminen on punainen (-)
+        # Lisätään kuninkaille painoarvoa, jotta AI yrittää tehdä niitä
+        return (self.black_left - self.red_left) + (self.black_kings * 0.5 - self.red_kings * 0.5)
+
+    def get_all_pieces(self, color):
+        pieces = []
+        for row in self.board:
+            for piece in row:
+                if piece != 0 and piece.color == color:
+                    pieces.append(piece)
+        return pieces

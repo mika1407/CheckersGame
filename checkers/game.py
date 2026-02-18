@@ -7,6 +7,13 @@ class Game:
         self._init()
         self.win = win
 
+    def get_board(self):
+        return self.board
+
+    def ai_move(self, board):
+        self.board = board
+        self.change_turn()
+
     def update(self):
         self.board.draw(self.win)
         self.highlight_mandatory_moves() # Uusi lisäys: korostetaan pakolliset nappulat
