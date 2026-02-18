@@ -9,8 +9,16 @@ class Game:
 
     def update(self):
         self.board.draw(self.win)
+        self.highlight_mandatory_moves() # Uusi lisäys: korostetaan pakolliset nappulat
         self.draw_valid_moves(self.valid_moves)
         pygame.display.update()
+
+    def highlight_mandatory_moves(self):
+        # Haetaan kaikki nappulat, joilla on pakko hypätä
+        mandatory = self._get_all_mandatory_jumps()
+        for piece in mandatory:
+            # Piirretään valkoinen kehä nappulan ympärille
+            pygame.draw.circle(self.win, WHITE, (piece.x, piece.y), SQUARE_SIZE//2 - 5, 5)
 
     def _init(self):
         self.selected = None
