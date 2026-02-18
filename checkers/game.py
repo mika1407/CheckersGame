@@ -1,6 +1,7 @@
 import pygame
 from .constants import BLACK, BLUE, ROWS, RED, SQUARE_SIZE, COLS, WHITE, BROWN, LBROWN
 from checkers.board import Board
+from .constants import MOVE_SOUND
 
 class Game:
     def __init__(self, win):
@@ -83,6 +84,8 @@ class Game:
         if self.selected and piece == 0 and (row, col) in self.valid_moves:
             skipped = self.valid_moves[(row, col)]
             self.board.move(self.selected, row, col)
+
+            MOVE_SOUND.play() # Soitetaan siirtoääni
             
             if skipped:
                 self.board.remove(skipped)
